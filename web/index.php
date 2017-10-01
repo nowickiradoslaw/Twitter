@@ -29,7 +29,7 @@ if($uri === "/Twitter/web/") {
         $res = $controller->showMainPage();
     }
 }
-elseif($uri === "/Twitter/web/?tweet") {
+elseif($uri === "/Twitter/web/?tweets") {
     session_start();
     if($_SESSION["loggedUserId"]){
         if($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -37,11 +37,13 @@ elseif($uri === "/Twitter/web/?tweet") {
             if(!isset($_POST["text"]) OR !strlen($_POST["text"])) {
                 $res = $controller->showAllTweets(["error"=>"Formularz jest pusty!"]);
             }
-            $tweet = new Tweet();
-            $tweet->setText($_POST["text"]);
-            $tweet->setUserId($_SESSION["loggedUserId"]);
-            $tweet->saveToDB(DB::$conn);
-            $res = $controller->showAllTweets();
+            else{
+                $tweet = new Tweet();
+                $tweet->setText($_POST["text"]);
+                $tweet->setUserId($_SESSION["loggedUserId"]);
+                $tweet->saveToDB(DB::$conn);
+                $res = $controller->showAllTweets();
+            }
                         
         } else {
             $res = $controller->showAllTweets();
@@ -79,11 +81,37 @@ elseif($uri === "/Twitter/web/?tweet") {
             $res = $controller->register();
         }
     
+   
+} 
+
+elseif (preg_match('/\/\?tweet=\d+/',$uri)) {
+
+    session_start();
+    if($_SESSION["loggedUserId"]){
+        if($_SERVER["REQUEST_METHOD"] === "POST") {
+            
+            if(!isset($_POST["text"]) OR !strlen($_POST["text"])) {
+                $res = $controller->showTweet($_GET['tweet']);
+            }
+            else{
+                $comment = new Comment();
+                $comment->setText($_POST["text"]);
+                $comment->setUserId($_SESSION["loggedUserId"]);
+                $comment->setPostId($_GET['tweet']);
+                $comment->saveToDB(DB::$conn);
+                $res = $controller->showTweet($_GET['tweet']);
+            }
+                        
+        } else {
+            $res = $controller->showTweet($_GET['tweet']);
+        }
+    }
+    else {
+        
+        $res = $controller->showTweet($_GET['tweet']);
+        
+    }
 }
     
-elseif (preg_match('/\/tweet\/\d+/',$uri)) {
-    $id = explode('/',$uri)[2];
-    $res = $controller->showTweet($id);
-}
 echo $res;
 

@@ -76,8 +76,8 @@ class Tweet
                 $this->id = $conn->lastInsertId();
             }
             } else {
-            $stmt = $conn->prepare("UPDATE tweet 
-            SET text = :text, userId = :user_id, creationDate = :created_at
+            $stmt = $conn->prepare("UPDATE Tweet 
+            SET text = :text, userId = :userId, creationDate = :creationDate
             WHERE id = :id;");
             $result = $stmt->execute([
                 'text'=>$this->getText(),
@@ -102,7 +102,7 @@ class Tweet
     static public function getAllTweetsByUserId(PDO $conn, int $id){
         $stmt  = $conn->prepare("SELECT * FROM Tweet WHERE userId=:id");
         $result = $stmt->execute(['id'=>$id]);
-        if($result === true && $stmt->rowCount() > 0){
+        if($result == true && $stmt->rowCount() > 0){
             $tweets = [];
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $array) {
                 $tweet = new Tweet();
@@ -135,5 +135,22 @@ class Tweet
         }
         return null;   
     }
+    
+    static public function getTweetById(PDO $conn, int $id){
+        $stmt  = $conn->prepare("SELECT * FROM Tweet WHERE id=:id");
+        $result = $stmt->execute(['id'=>$id]);
+        if($result == true && $stmt->rowCount() > 0){
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $tweet = new Tweet();
+            $tweet->id = $row["id"];
+            $tweet->setUserId($row["userId"]);
+            $tweet->setText($row["text"]);
+            $tweet->setCreatedAt($row["creationDate"]);
+       
+            return $tweet;
+        }
+        return null;
+    }
+        
 }
 

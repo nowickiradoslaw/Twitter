@@ -22,3 +22,14 @@ CREATE TABLE Tweet (
 INSERT INTO Tweet VALUES
     (null, 1, "Dzis jest piatek", NOW()),
     (null, 2, "Zaczynamy weekend", NOW());
+
+CREATE TABLE Comment (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    userId INT NOT NULL,
+    postId INT NOT NULL,
+    text VARCHAR(255),  
+    creationDate DATETIME,
+    FOREIGN KEY (postId) REFERENCES Tweet(id),
+    FOREIGN KEY (userId) REFERENCES Users(id)
+
+);
