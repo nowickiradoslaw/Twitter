@@ -43,6 +43,7 @@ class Controller
                     'id' => $tweet->getId(),
                     'text' =>$tweet->getText(),
                     'creationDate' =>$tweet->getCreatedAtAsText(),
+                    'userId' => $tweet->getUserId(),
                     'userName' => User::getUserById(DB::$conn, $tweet->getUserId())->getUserName()
                 ]);
             }
@@ -63,23 +64,18 @@ class Controller
         
         $tweet = Tweet::getTweetById(DB::$conn, $id);
         $comments = Comment::getAllCommentsByPostId(DB::$conn, $id);
-               
-/*        $htmlTweet = $this->render('singleTweet', [
-            'id' => $tweet->getId(),
-            'text' => $tweet->getText(),
-            'creationDate' => $tweet->getCreatedAtAsText(),
-            'userName' => User::getUserById(DB::$conn, $tweet->getUserId())->getUserName()
-        ]);*/
-        
+                      
         $html = '';
-        foreach ($comments as $comment) {
-            if($comment instanceof Comment) {
-                $html .= $this->render('comment', [
-                    'id' => $comment->getId(),
-                    'text' => $comment->getText(),
-                    'creationDate' => $comment->getCreatedAtAsText(),
-                    'userName' => User::getUserById(DB::$conn, $comment->getUserId())->getUserName()
-                ]);
+        if ($comments != null){
+            foreach ($comments as $comment) {
+                if($comment instanceof Comment) {
+                    $html .= $this->render('comment', [
+                        'id' => $comment->getId(),
+                        'text' => $comment->getText(),
+                        'creationDate' => $comment->getCreatedAtAsText(),
+                        'userName' => User::getUserById(DB::$conn, $comment->getUserId())->getUserName()
+                    ]);
+                }
             }
         }
   
@@ -91,6 +87,27 @@ class Controller
                 'userName' => User::getUserById(DB::$conn, $tweet->getUserId())->getUserName()
                 ]
                 ));       
+    }
+    
+    public function showUserTweets($id){
+        $tweets = Tweet::getAllTweetsByUserId(DB::$conn, $id);
+        $html = '';
+        if ($tweets != null){
+            foreach ($tweets as $tweet) {
+                
+                if($tweet instanceof Tweet) {
+                    
+                    $html .= $this->render('userTweet', [
+                        'id' => $tweet->getId(),
+                        'text' => $tweet->getText(),
+                        'creationDate' => $tweet->getCreatedAtAsText()
+                    ]);
+                }
+            }
+        return $this->render('userTweets',['content' => $html]);
+        }
+        return $html;
+    
     }
     
     

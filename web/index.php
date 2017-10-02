@@ -56,6 +56,8 @@ elseif($uri === "/Twitter/web/?tweets") {
     } elseif ($uri === "/Twitter/web/?register"){
         if($_SERVER["REQUEST_METHOD"] === "POST") {
             
+            session_start();
+            
             if(!isset($_POST["userName"]) || !strlen($_POST["userName"])) {
                 $res = $controller->register(["error"=>"Podaj imię"]);
             }
@@ -73,6 +75,7 @@ elseif($uri === "/Twitter/web/?tweets") {
                 $user->setUserEmail($_POST["userEmail"]);
                 $user->setUserPassword($_POST["userPassword"]);
                 $user->saveToDB(DB::$conn);
+                $_SESSION['loggedUserId'] = $user->getId();
                 $res = $controller->showAllTweets();
                 
             }
@@ -112,6 +115,29 @@ elseif (preg_match('/\/\?tweet=\d+/',$uri)) {
         
     }
 }
-    
+
+
+elseif (preg_match('/\/\?user=\d+/',$uri)) {
+
+    session_start();
+    if($_SESSION["loggedUserId"]){
+
+        if($_SERVER["REQUEST_METHOD"] === "GET") {
+                       
+            if(isset($_GET["user"])) {
+                $res = $controller->showUserTweets($_GET['user']);
+            }
+        }
+        else {
+
+            $res = $controller->showAllTweets();
+
+        }
+    }
+    else {
+        $res = $controller->register ();
+    }
+}
+
 echo $res;
 
